@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>404 — Page Not Found | NeuralDecide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="shared.css"/>
+  <style>
+    body { overflow: hidden; }
+
+    .error-wrap {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; position: relative; z-index: 1; padding: 24px;
+    }
+
+    /* Giant 404 */
+    .big-404 {
+      font-family: var(--font-display);
+      font-size: clamp(120px, 22vw, 220px);
+      font-weight: 800;
+      line-height: 0.85;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg,
+        rgba(99,179,237,0.15) 0%,
+        rgba(159,122,234,0.15) 50%,
+        rgba(99,179,237,0.08) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      user-select: none;
+      animation: fadeIn 0.6s ease both;
+    }
+    .big-404::after {
+      content: '404';
+      position: absolute; inset: 0;
+      font-family: var(--font-display);
+      font-size: inherit; font-weight: inherit; letter-spacing: inherit;
+      -webkit-text-stroke: 1px rgba(99,179,237,0.12);
+      -webkit-text-fill-color: transparent;
+      filter: blur(40px);
+      animation: glow-pulse 4s ease-in-out infinite;
+    }
+
+    /* Glitchy scan lines overlay on 404 */
+    .scan-overlay {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.06) 3px,
+        rgba(0,0,0,0.06) 4px
+      );
+      pointer-events: none;
+      border-radius: 8px;
+    }
+
+    /* Glitch animation */
+    @keyframes glitch-1 {
+      0%,94%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+      95% { clip-path: inset(30% 0 50% 0); transform: translate(-4px, 2px); }
+      97% { clip-path: inset(60% 0 20% 0); transform: translate(4px, -2px); }
+    }
+    @keyframes glitch-2 {
+      0%,96%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+      97% { clip-path: inset(10% 0 70% 0); transform: translate(3px, 1px); color:var(--danger); }
+      99% { clip-path: inset(80% 0 10% 0); transform: translate(-3px, -1px); }
+    }
+
+    .glitch-wrap { position: relative; display: inline-block; margin-bottom: 8px; }
+    .glitch-clone {
+      position: absolute; inset: 0;
+      font-family: var(--font-display); font-size: inherit; font-weight: inherit;
+      letter-spacing: inherit;
+      -webkit-text-fill-color: rgba(99,179,237,0.5);
+      animation: glitch-1 4s infinite;
+    }
+    .glitch-clone-2 {
+      position: absolute; inset: 0;
+      font-family: var(--font-display); font-size: inherit; font-weight: inherit;
+      letter-spacing: inherit;
+      -webkit-text-fill-color: rgba(252,129,129,0.4);
+      animation: glitch-2 5s infinite;
+    }
+
+    /* Content card */
+    .err-card {
+      max-width: 520px;
+      padding: 48px 40px;
+      position: relative;
+    }
+    .err-card::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 160px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .err-title {
+      font-family: var(--font-display); font-size: 24px; font-weight: 700;
+      margin-bottom: 12px; animation: fadeUp 0.5s 0.2s ease both;
+    }
+    .err-sub {
+      color: var(--text2); font-size: 15px; line-height: 1.7;
+      margin-bottom: 32px; animation: fadeUp 0.5s 0.3s ease both;
+    }
+    .err-btns { animation: fadeUp 0.5s 0.4s ease both; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* Suggestions */
+    .suggestions { margin-top: 36px; animation: fadeUp 0.5s 0.5s ease both; }
+    .sugg-label  { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+    .sugg-links  { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .sugg-link   {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text2); text-decoration: none; font-size: 13px;
+      transition: all 0.2s;
+    }
+    .sugg-link:hover { border-color: var(--accent); color: var(--accent); background: rgba(99,179,237,0.06); }
+
+    /* Floating debris */
+    .debris {
+      position: fixed; pointer-events: none; z-index: 0;
+      font-family: var(--font-mono); font-size: 11px; color: rgba(99,179,237,0.15);
+      animation: floatDebris var(--dur,8s) linear infinite;
+      white-space: nowrap;
+    }
+    @keyframes floatDebris {
+      from { transform: translateY(100vh) rotate(var(--rot,0deg)); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.5; }
+      to   { transform: translateY(-20vh) rotate(calc(var(--rot,0deg) + 20deg)); opacity: 0; }
+    }
+
+    /* Error code terminal */
+    .terminal {
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(99,179,237,0.15);
+      border-radius: 8px; padding: 14px 16px; margin-bottom: 28px;
+      font-family: var(--font-mono); font-size: 12px; text-align: left;
+      animation: fadeUp 0.5s 0.15s ease both;
+    }
+    .terminal-line { display: flex; gap: 8px; margin-bottom: 4px; }
+    .terminal-line:last-child { margin-bottom: 0; }
+    .t-prompt { color: var(--accent3); }
+    .t-cmd    { color: var(--text); }
+    .t-err    { color: var(--danger); }
+    .t-warn   { color: var(--warn); }
+    .cursor   { display: inline-block; width: 7px; height: 13px; background: var(--accent); vertical-align: middle; animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  </style>
+</head>
+<body>
+  <div class="nebula"></div>
+  <div class="grid-overlay"></div>
+  <div class="stars" id="stars"></div>
+
+  <!-- Floating code debris -->
+  <div id="debris-container"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><div class="nav-logo-icon">⚡</div>NeuralDecide</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+      <a href="simulator.html" class="nav-cta">Launch Simulator →</a>
+      <button class="nav-mobile-btn" onclick="toggleMobile()">
+        <i data-lucide="menu" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="mob-menu">
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="simulator.html" style="color:var(--accent);">Launch Simulator →</a>
+  </div>
+
+  <div class="error-wrap">
+    <div>
+
+      <!-- Giant glitchy 404 -->
+      <div class="glitch-wrap">
+        <div class="big-404">
+          404
+          <div class="scan-overlay"></div>
+        </div>
+        <div class="glitch-clone">404</div>
+        <div class="glitch-clone-2">404</div>
+      </div>
+
+      <!-- Card -->
+      <div class="glass-bright err-card" style="margin:0 auto;">
+
+        <!-- Terminal block -->
+        <div class="terminal">
+          <div class="terminal-line">
+            <span class="t-prompt">$</span>
+            <span class="t-cmd">GET <span id="typed-url" style="color:var(--accent);">/unknown-path</span></span>
+          </div>
+          <div class="terminal-line">
+            <span class="t-err">✗ ERROR 404</span>
+            <span class="t-warn">— Page not found</span>
+          </div>
+          <div class="terminal-line">
+            <span class="t-prompt" style="color:var(--muted);">→</span>
+            <span style="color:var(--text2);">Redirecting you to safety...</span>
+            <span class="cursor"></span>
+          </div>
+        </div>
+
+        <h1 class="err-title">Lost in the void?</h1>
+        <p class="err-sub">
+          This page doesn't exist — or was moved. Either way, the neural network can't find it.
+          Let's get you back to solid ground.
+        </p>
+
+        <div class="err-btns">
+          <a href="index.html" class="btn btn-primary">
+            <i data-lucide="home" style="width:15px;height:15px;"></i>
+            Back to Home
+          </a>
+          <a href="simulator.html" class="btn btn-outline">
+            <i data-lucide="zap" style="width:15px;height:15px;"></i>
+            Try Simulator
+          </a>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions">
+          <div class="sugg-label">Maybe you were looking for</div>
+          <div class="sugg-links">
+            <a href="about.html" class="sugg-link">
+              <i data-lucide="info" style="width:13px;height:13px;"></i>
+              About
+            </a>
+            <a href="services.html" class="sugg-link">
+              <i data-lucide="grid" style="width:13px;height:13px;"></i>
+              Services
+            </a>
+            <a href="dashboard.html" class="sugg-link">
+              <i data-lucide="layout-dashboard" style="width:13px;height:13px;"></i>
+              Dashboard
+            </a>
+            <a href="contact.html" class="sugg-link">
+              <i data-lucide="mail" style="width:13px;height:13px;"></i>
+              Contact
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Stars
+    (function(){
+      const c=document.getElementById('stars');
+      for(let i=0;i<80;i++){
+        const s=document.createElement('div'); s.className='star';
+        const sz=Math.random()*2+0.5;
+        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--mn:0.04;--mx:${0.2+Math.random()*0.4};`;
+        c.appendChild(s);
+      }
+    })();
+
+    // Floating code debris
+    const debrisText = [
+      'HTTP/1.1 404', 'null', 'undefined', '{}', '[]',
+      'NaN', 'Error: 404', 'route not found', '<!-- ? -->',
+      '⚠ 404', 'GET /???', 'res.status(404)', 'throw new Error()',
+    ];
+    (function(){
+      const c=document.getElementById('debris-container');
+      for(let i=0;i<12;i++){
+        const d=document.createElement('div'); d.className='debris';
+        d.textContent = debrisText[i % debrisText.length];
+        d.style.cssText=`left:${Math.random()*100}%;--dur:${10+Math.random()*10}s;--rot:${(Math.random()-0.5)*30}deg;animation-delay:${Math.random()*10}s;`;
+        c.appendChild(d);
+      }
+    })();
+
+    // Show current path
+    document.getElementById('typed-url').textContent = window.location.pathname || '/404';
+
+    function toggleMobile(){document.getElementById('mob-menu').classList.toggle('open');}
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

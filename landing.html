@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>NeuralDecide — AI-Powered Decision Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="shared.css"/>
+  <style>
+    /* ── Hero ── */
+    .hero { padding: calc(var(--nav-h) + 80px) 0 80px; min-height: 100vh; display: flex; align-items: center; }
+    .hero-badge { animation: fadeUp 0.4s ease both; }
+    .hero-title { font-size: clamp(2.8rem,6vw,5rem); animation: fadeUp 0.5s 0.1s ease both; margin-bottom: 24px; }
+    .hero-sub  { animation: fadeUp 0.5s 0.2s ease both; max-width: 520px; color: var(--text2); font-size: 17px; line-height: 1.7; margin-bottom: 36px; }
+    .hero-btns { animation: fadeUp 0.5s 0.3s ease both; display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-stats { animation: fadeUp 0.5s 0.4s ease both; display: flex; gap: 40px; margin-top: 56px; flex-wrap: wrap; }
+    .hero-stat-val { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--text); }
+    .hero-stat-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+    /* Hero visual */
+    .hero-visual {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.8s 0.3s ease both;
+    }
+    .hero-card-main {
+      width: 340px; padding: 28px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99,179,237,0.2);
+      border-radius: 20px;
+      animation: float 7s ease-in-out infinite;
+    }
+    .hero-card-float {
+      position: absolute; padding: 14px 18px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 12px; white-space: nowrap;
+      font-size: 13px;
+    }
+    .card-tl { top: -20px; left: -30px; animation: float 5s 1s ease-in-out infinite; }
+    .card-tr { top: 30px; right: -40px; animation: float 6s 0.5s ease-in-out infinite; }
+    .card-br { bottom: -10px; right: -20px; animation: float 5.5s 1.5s ease-in-out infinite; }
+
+    /* Gauge inside hero card */
+    .mini-gauge { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .gauge-ring { position: relative; flex-shrink: 0; }
+    .gauge-ring svg .ring-bg  { fill:none; stroke:rgba(255,255,255,0.06); }
+    .gauge-ring svg .ring-fill { fill:none; stroke-linecap:round; transition:stroke-dashoffset 2s ease; }
+    .gauge-center { position:absolute;inset:0;display:flex;align-items:center;justify-content:center; font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--accent3); }
+
+    /* ── Features section ── */
+    .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .feat-card { padding: 28px; transition: transform 0.2s, border-color 0.2s; }
+    .feat-card:hover { transform: translateY(-4px); border-color: rgba(99,179,237,0.25); }
+    .feat-icon {
+      width: 46px; height: 46px; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; margin-bottom: 18px;
+    }
+    .feat-card h3 { font-family:var(--font-display); font-size:17px; font-weight:700; margin-bottom:10px; }
+    .feat-card p  { color:var(--text2); font-size:14px; line-height:1.65; }
+
+    /* ── How it works ── */
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative; }
+    .steps::before {
+      content:''; position:absolute; top:28px; left:12%; right:12%; height:1px;
+      background: linear-gradient(90deg,transparent,var(--border),var(--border),transparent);
+      z-index:0;
+    }
+    .step { text-align:center; padding:0 16px; position:relative; z-index:1; }
+    .step-num {
+      width:56px;height:56px;border-radius:50%;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-mono);font-size:20px;font-weight:700;
+      margin:0 auto 18px; color:var(--accent);
+    }
+    .step h4 { font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:8px; }
+    .step p  { font-size:13px; color:var(--text2); line-height:1.55; }
+
+    /* ── Social proof ── */
+    .testimonials { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .testi { padding:24px; }
+    .testi-stars { color:#f6ad55; font-size:14px; letter-spacing:2px; margin-bottom:14px; }
+    .testi p { font-size:14px; color:var(--text2); line-height:1.7; margin-bottom:16px; font-style:italic; }
+    .testi-author { display:flex; align-items:center; gap:10px; }
+    .testi-avatar {
+      width:38px;height:38px;border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-display);font-weight:700;font-size:14px;color:white;
+      flex-shrink:0;
+    }
+    .testi-name  { font-weight:600; font-size:14px; }
+    .testi-role  { font-size:12px; color:var(--text2); }
+
+    /* ── CTA section ── */
+    .cta-section {
+      text-align:center; padding:100px 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%,rgba(99,179,237,0.07) 0%,transparent 70%);
+    }
+
+    /* ── Responsive ── */
+    @media(max-width:900px) {
+      .features-grid { grid-template-columns:1fr 1fr; }
+      .steps { grid-template-columns:1fr 1fr; gap:32px; }
+      .steps::before { display:none; }
+      .testimonials { grid-template-columns:1fr; }
+      .hero > .container > div { flex-direction:column; }
+      .hero-visual { margin-top:48px; }
+    }
+    @media(max-width:640px) {
+      .features-grid { grid-template-columns:1fr; }
+      .hero-card-float { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nebula"></div>
+  <div class="grid-overlay"></div>
+  <div class="stars" id="stars"></div>
+
+  <!-- ── NAV ── -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">⚡</div>
+        NeuralDecide
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+      <a href="simulator.html" class="nav-cta">Launch Simulator →</a>
+      <button class="nav-mobile-btn" onclick="toggleMobile()" id="mob-btn">
+        <i data-lucide="menu" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="mob-menu">
+    <a href="index.html" class="active">Home</a>
+    <a href="services.html">Services</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="simulator.html" style="color:var(--accent);margin-top:12px;">Launch Simulator →</a>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- ══════════════════════════════════════
+         HERO
+    ══════════════════════════════════════ -->
+    <section class="hero">
+      <div class="container">
+        <div style="display:flex;align-items:center;gap:64px;">
+
+          <!-- Left -->
+          <div style="flex:1;min-width:0;">
+            <div class="hero-badge">
+              <span class="section-eyebrow">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--accent3);animation:glow-pulse 2s infinite;"></span>
+                AI-POWERED DECISION INTELLIGENCE
+              </span>
+            </div>
+            <h1 class="display hero-title">
+              Think Clearly.<br>
+              <span class="gradient-text">Decide Smarter.</span>
+            </h1>
+            <p class="hero-sub">
+              NeuralDecide uses weighted intelligence and probability modeling to help you make
+              high-stakes decisions with confidence — not gut instinct.
+            </p>
+            <div class="hero-btns">
+              <a href="simulator.html" class="btn btn-primary btn-lg">
+                <i data-lucide="zap" style="width:18px;height:18px;"></i>
+                Try the Simulator
+              </a>
+              <a href="services.html" class="btn btn-outline btn-lg">
+                See How It Works
+              </a>
+            </div>
+            <div class="hero-stats">
+              <div>
+                <div class="hero-stat-val gradient-text">98K+</div>
+                <div class="hero-stat-lbl">Decisions Analyzed</div>
+              </div>
+              <div>
+                <div class="hero-stat-val gradient-text">4.9★</div>
+                <div class="hero-stat-lbl">Average Rating</div>
+              </div>
+              <div>
+                <div class="hero-stat-val gradient-text">87%</div>
+                <div class="hero-stat-lbl">Accuracy Rate</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Visual -->
+          <div class="hero-visual" style="flex-shrink:0;">
+            <div class="hero-card-main">
+              <p style="font-size:11px;color:var(--text2);letter-spacing:0.1em;margin-bottom:16px;">DECISION ANALYSIS</p>
+              <div class="mini-gauge">
+                <div class="gauge-ring">
+                  <svg width="80" height="80" viewBox="0 0 80 80">
+                    <circle class="ring-bg" cx="40" cy="40" r="32" stroke-width="5"/>
+                    <circle class="ring-fill" cx="40" cy="40" r="32" stroke-width="5"
+                      stroke="url(#hg)" stroke-dasharray="201" stroke-dashoffset="52"
+                      transform="rotate(-90 40 40)"/>
+                    <defs>
+                      <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#68d391"/>
+                        <stop offset="100%" stop-color="#63b3ed"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="gauge-center">74%</div>
+                </div>
+                <div>
+                  <div style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:4px;">Likely Positive</div>
+                  <div style="font-size:12px;color:var(--text2);">Should I launch a SaaS?</div>
+                </div>
+              </div>
+              <!-- Mini bars -->
+              <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                  <span style="color:var(--accent3);">Pro score</span>
+                  <span class="mono" style="color:var(--accent3);">340</span>
+                </div>
+                <div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">
+                  <div style="width:68%;height:100%;background:linear-gradient(90deg,#68d391,#63b3ed);border-radius:3px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                  <span style="color:var(--danger);">Con score</span>
+                  <span class="mono" style="color:var(--danger);">160</span>
+                </div>
+                <div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">
+                  <div style="width:32%;height:100%;background:linear-gradient(90deg,#fc8181,#c05252);border-radius:3px;"></div>
+                </div>
+              </div>
+              <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                <span class="badge badge-green">✓ Strongly Recommended</span>
+                <span style="font-size:11px;color:var(--muted);">3m ago</span>
+              </div>
+            </div>
+
+            <!-- Floating micro cards -->
+            <div class="hero-card-float card-tl">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:var(--accent3);font-size:16px;">↑</span>
+                <span style="color:var(--text2);">Success rate up <strong style="color:var(--accent3);">+23%</strong></span>
+              </div>
+            </div>
+            <div class="hero-card-float card-tr">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:14px;">⚡</span>
+                <span style="color:var(--text2);">Real-time analysis</span>
+              </div>
+            </div>
+            <div class="hero-card-float card-br">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:var(--accent2);font-size:14px;">◎</span>
+                <span style="color:var(--text2);">98,432 decisions</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TRUSTED BY
+    ══════════════════════════════════════ -->
+    <section style="padding:32px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+      <div class="container">
+        <div style="display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap;">
+          <span style="font-size:12px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">Trusted by teams at</span>
+          <span style="color:var(--muted);font-family:var(--font-display);font-weight:700;font-size:16px;">Vercel</span>
+          <span style="color:var(--muted);font-family:var(--font-display);font-weight:700;font-size:16px;">Stripe</span>
+          <span style="color:var(--muted);font-family:var(--font-display);font-weight:700;font-size:16px;">Linear</span>
+          <span style="color:var(--muted);font-family:var(--font-display);font-weight:700;font-size:16px;">Notion</span>
+          <span style="color:var(--muted);font-family:var(--font-display);font-weight:700;font-size:16px;">Loom</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         FEATURES
+    ══════════════════════════════════════ -->
+    <section class="section">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:60px;">
+          <span class="section-eyebrow">WHAT WE OFFER</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:16px;">
+            Built for <span class="gradient-text">complex decisions</span>
+          </h2>
+          <p style="color:var(--text2);font-size:16px;max-width:500px;margin:0 auto;">Every feature is designed to remove bias, quantify uncertainty, and surface what matters most.</p>
+        </div>
+        <div class="features-grid">
+
+          <div class="glass feat-card">
+            <div class="feat-icon" style="background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.2);">
+              <i data-lucide="scale" style="width:22px;height:22px;color:var(--accent);"></i>
+            </div>
+            <h3>Weighted Scoring</h3>
+            <p>Assign weight and certainty to every factor. Our engine calculates a precision score — no more guessing.</p>
+          </div>
+
+          <div class="glass feat-card">
+            <div class="feat-icon" style="background:rgba(159,122,234,0.1);border:1px solid rgba(159,122,234,0.2);">
+              <i data-lucide="timer" style="width:22px;height:22px;color:var(--accent2);"></i>
+            </div>
+            <h3>Cooling-Off Timer</h3>
+            <p>Enforce a mandatory reflection period. Emotional decisions get caught before they cost you.</p>
+          </div>
+
+          <div class="glass feat-card">
+            <div class="feat-icon" style="background:rgba(104,211,145,0.1);border:1px solid rgba(104,211,145,0.2);">
+              <i data-lucide="flame" style="width:22px;height:22px;color:var(--accent3);"></i>
+            </div>
+            <h3>Risk Heatmap</h3>
+            <p>Instantly visualize which risks carry the most weight. Fix critical blockers before you commit.</p>
+          </div>
+
+          <div class="glass feat-card">
+            <div class="feat-icon" style="background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.2);">
+              <i data-lucide="rotate-ccw" style="width:22px;height:22px;color:var(--warn);"></i>
+            </div>
+            <h3>Inversion Thinking</h3>
+            <p>Pre-mortem analysis built in. Explore failure modes before they happen, not after.</p>
+          </div>
+
+          <div class="glass feat-card">
+            <div class="feat-icon" style="background:rgba(252,129,129,0.1);border:1px solid rgba(252,129,129,0.2);">
+              <i data-lucide="history" style="width:22px;height:22px;color:var(--danger);"></i>
+            </div>
+            <h3>Decision History</h3>
+            <p>Every simulation saved. Review past decisions, see patterns, and improve your judgment over time.</p>
+          </div>
+
+          <div class="glass feat-card">
+            <div class="feat-icon" style="background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.2);">
+              <i data-lucide="brain-circuit" style="width:22px;height:22px;color:var(--accent);"></i>
+            </div>
+            <h3>Neural Reports</h3>
+            <p>Get a full intelligence report with probability, verdict, and reflection prompts in seconds.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         HOW IT WORKS
+    ══════════════════════════════════════ -->
+    <section class="section" style="background:rgba(255,255,255,0.01);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:64px;">
+          <span class="section-eyebrow">THE PROCESS</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,4vw,2.8rem);">
+            From confusion to <span class="gradient-text-green">clarity</span>
+          </h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <h4>State the Decision</h4>
+            <p>Define exactly what you're deciding. Clarity of question drives clarity of answer.</p>
+          </div>
+          <div class="step">
+            <div class="step-num" style="color:var(--accent2);">02</div>
+            <h4>Add Factors</h4>
+            <p>List every pro and con. Rate each by importance and how certain you are.</p>
+          </div>
+          <div class="step">
+            <div class="step-num" style="color:var(--accent3);">03</div>
+            <h4>Let It Process</h4>
+            <p>The cooling-off timer forces reflection. The engine runs weighted probability models.</p>
+          </div>
+          <div class="step">
+            <div class="step-num" style="color:var(--warn);">04</div>
+            <h4>Read the Report</h4>
+            <p>Get a clear verdict, risk heatmap, and inversion prompt. Then decide with confidence.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TESTIMONIALS
+    ══════════════════════════════════════ -->
+    <section class="section">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:56px;">
+          <span class="section-eyebrow">TESTIMONIALS</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,4vw,2.8rem);">
+            Trusted by <span class="gradient-text">decision-makers</span>
+          </h2>
+        </div>
+        <div class="testimonials">
+          <div class="glass testi">
+            <div class="testi-stars">★★★★★</div>
+            <p>"I used NeuralDecide before choosing my co-founder. The risk heatmap caught a red flag I would have rationalized away. Changed everything."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">AK</div>
+              <div>
+                <div class="testi-name">Arjun Kumar</div>
+                <div class="testi-role">Founder, Stackflow</div>
+              </div>
+            </div>
+          </div>
+          <div class="glass testi">
+            <div class="testi-stars">★★★★★</div>
+            <p>"I'm a VC. I run every term sheet through this before committing capital. The inversion question alone is worth the subscription."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:linear-gradient(135deg,#68d391,#4299e1);">SR</div>
+              <div>
+                <div class="testi-name">Sofia Reyes</div>
+                <div class="testi-role">Partner, Meridian Ventures</div>
+              </div>
+            </div>
+          </div>
+          <div class="glass testi">
+            <div class="testi-stars">★★★★★</div>
+            <p>"The cooling-off timer sounds simple but it literally saved me from a $200k mistake. This tool should be required for every exec team."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:linear-gradient(135deg,#f6ad55,#fc8181);">TN</div>
+              <div>
+                <div class="testi-name">Tom Nguyen</div>
+                <div class="testi-role">CPO, Buildkite</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         CTA
+    ══════════════════════════════════════ -->
+    <section class="cta-section">
+      <div class="container">
+        <span class="section-eyebrow">GET STARTED FREE</span>
+        <h2 class="display" style="font-size:clamp(2rem,4.5vw,3.2rem);margin-bottom:20px;">
+          Your next big decision<br>deserves <span class="gradient-text">better than a coin flip.</span>
+        </h2>
+        <p style="color:var(--text2);font-size:16px;max-width:440px;margin:0 auto 36px;">
+          Join 12,000+ professionals who use NeuralDecide to make high-stakes decisions with data, not gut feelings.
+        </p>
+        <a href="simulator.html" class="btn btn-primary btn-lg">
+          <i data-lucide="zap" style="width:18px;height:18px;"></i>
+          Launch Free Simulator
+        </a>
+        <p style="color:var(--muted);font-size:13px;margin-top:16px;">No signup required. Runs in your browser.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════ -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="index.html" class="nav-logo" style="margin-bottom:12px;display:inline-flex;">
+              <div class="nav-logo-icon">⚡</div>
+              NeuralDecide
+            </a>
+            <p>AI-powered decision intelligence for professionals, founders, and leaders who refuse to leave outcomes to chance.</p>
+          </div>
+          <div class="footer-col">
+            <h4>Product</h4>
+            <a href="services.html">Features</a>
+            <a href="index.html">Simulator</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="#">Pricing</a>
+          </div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <a href="about.html">About</a>
+            <a href="#">Blog</a>
+            <a href="#">Careers</a>
+            <a href="contact.html">Contact</a>
+          </div>
+          <div class="footer-col">
+            <h4>Legal</h4>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Security</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2025 NeuralDecide. All rights reserved.</span>
+          <span>Made with precision and purpose.</span>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- end page-wrap -->
+
+  <script>
+    // Stars
+    (function(){
+      const c=document.getElementById('stars');
+      for(let i=0;i<100;i++){
+        const s=document.createElement('div'); s.className='star';
+        const sz=Math.random()*2.5+0.5;
+        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--mn:${0.05+Math.random()*0.1};--mx:${0.3+Math.random()*0.5};`;
+        c.appendChild(s);
+      }
+    })();
+
+    // Mobile nav
+    function toggleMobile(){
+      const m=document.getElementById('mob-menu');
+      m.classList.toggle('open');
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>About — NeuralDecide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="shared.css"/>
+  <style>
+    .page-hero { padding: calc(var(--nav-h) + 80px) 0 80px; text-align:center; }
+
+    /* Timeline */
+    .timeline { position:relative; max-width:640px; margin:0 auto; }
+    .timeline::before {
+      content:''; position:absolute; left:28px; top:0; bottom:0; width:1px;
+      background:linear-gradient(180deg, transparent, var(--border) 10%, var(--border) 90%, transparent);
+    }
+    .tl-item { display:flex; gap:24px; margin-bottom:36px; align-items:flex-start; }
+    .tl-dot {
+      width:56px; height:56px; border-radius:50%; flex-shrink:0;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-mono); font-size:11px; color:var(--accent);
+      position:relative; z-index:1;
+    }
+    .tl-dot.active { background:rgba(99,179,237,0.1); border-color:rgba(99,179,237,0.4); animation:glow-pulse 3s infinite; }
+    .tl-content { padding-top:14px; }
+    .tl-content h4 { font-family:var(--font-display); font-size:16px; font-weight:700; margin-bottom:6px; }
+    .tl-content p  { color:var(--text2); font-size:14px; line-height:1.65; }
+
+    /* Team */
+    .team-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    .team-card { padding:28px; text-align:center; transition:transform 0.2s,border-color 0.2s; }
+    .team-card:hover { transform:translateY(-4px); border-color:rgba(99,179,237,0.25); }
+    .avatar-wrap {
+      width:80px; height:80px; border-radius:50%; margin:0 auto 16px;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-display); font-weight:800; font-size:28px; color:white;
+    }
+    .team-card h3 { font-family:var(--font-display); font-size:17px; font-weight:700; margin-bottom:4px; }
+    .team-card .role { font-size:13px; color:var(--accent); margin-bottom:12px; }
+    .team-card p { font-size:13px; color:var(--text2); line-height:1.6; }
+
+    /* Values */
+    .values-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+    .value-card { padding:28px; display:flex; gap:18px; align-items:flex-start; }
+    .value-icon {
+      width:44px; height:44px; border-radius:10px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--surface2); border:1px solid var(--border);
+    }
+    .value-card h4 { font-family:var(--font-display); font-size:15px; font-weight:700; margin-bottom:6px; }
+    .value-card p  { font-size:13px; color:var(--text2); line-height:1.6; }
+
+    /* Stats band */
+    .stats-band { padding:60px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:rgba(255,255,255,0.01); }
+    .stats-row  { display:flex; justify-content:center; gap:80px; flex-wrap:wrap; }
+    .stat-item  { text-align:center; }
+    .stat-num   { font-family:var(--font-display); font-size:42px; font-weight:800; line-height:1; }
+    .stat-lbl   { font-size:13px; color:var(--text2); margin-top:6px; }
+
+    @media(max-width:768px){
+      .team-grid   { grid-template-columns:1fr 1fr; }
+      .values-grid { grid-template-columns:1fr; }
+      .stats-row   { gap:40px; }
+    }
+    @media(max-width:480px){
+      .team-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nebula"></div>
+  <div class="grid-overlay"></div>
+  <div class="stars" id="stars"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><div class="nav-logo-icon">⚡</div>NeuralDecide</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+      <a href="simulator.html" class="nav-cta">Launch Simulator →</a>
+      <button class="nav-mobile-btn" onclick="toggleMobile()">
+        <i data-lucide="menu" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="mob-menu">
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="about.html" class="active">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="simulator.html" style="color:var(--accent);">Launch Simulator →</a>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- HERO -->
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-eyebrow">OUR STORY</span>
+        <h1 class="display animate-fade-up" style="font-size:clamp(2.4rem,5vw,4rem);margin-bottom:20px;">
+          We built the tool<br>we <span class="gradient-text">desperately needed</span>
+        </h1>
+        <p style="color:var(--text2);font-size:17px;max-width:560px;margin:0 auto;line-height:1.7;" class="animate-fade-up">
+          NeuralDecide was born from a bad decision. We lost six months and a significant investment
+          on a product launch we should have analyzed more rigorously. So we built the system we wish we'd had.
+        </p>
+      </div>
+    </section>
+
+    <!-- STATS BAND -->
+    <div class="stats-band">
+      <div class="container">
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="stat-num gradient-text">2021</div>
+            <div class="stat-lbl">Founded</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num gradient-text">12K+</div>
+            <div class="stat-lbl">Active Users</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num gradient-text">98K+</div>
+            <div class="stat-lbl">Decisions Analyzed</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num gradient-text">14</div>
+            <div class="stat-lbl">Team Members</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num gradient-text">$2.4M</div>
+            <div class="stat-lbl">Capital Raised</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MISSION -->
+    <section class="section">
+      <div class="container">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+          <div>
+            <span class="section-eyebrow">OUR MISSION</span>
+            <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-bottom:20px;">
+              Better decisions.<br><span class="gradient-text">Better outcomes.</span>
+            </h2>
+            <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:16px;">
+              Most decisions — especially the high-stakes ones — are made emotionally. We believe the highest-impact thing we can do
+              is give people a rigorous, structured, data-driven way to think clearly under pressure.
+            </p>
+            <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:28px;">
+              We're not here to replace your judgment. We're here to sharpen it — to turn gut feelings into weighted evidence,
+              and anxiety into actionable intelligence.
+            </p>
+            <a href="services.html" class="btn btn-outline">
+              <i data-lucide="arrow-right" style="width:15px;height:15px;"></i>
+              See Our Approach
+            </a>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="glass" style="padding:24px;border-radius:var(--radius);">
+              <i data-lucide="target" style="width:28px;height:28px;color:var(--accent);margin-bottom:14px;"></i>
+              <h4 style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:8px;">Precision First</h4>
+              <p style="font-size:13px;color:var(--text2);line-height:1.6;">Every model is tested against real-world outcome data.</p>
+            </div>
+            <div class="glass" style="padding:24px;border-radius:var(--radius);margin-top:24px;">
+              <i data-lucide="shield-check" style="width:28px;height:28px;color:var(--accent3);margin-bottom:14px;"></i>
+              <h4 style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:8px;">Privacy by Default</h4>
+              <p style="font-size:13px;color:var(--text2);line-height:1.6;">Your decisions stay yours. We never sell or share your data.</p>
+            </div>
+            <div class="glass" style="padding:24px;border-radius:var(--radius);">
+              <i data-lucide="zap" style="width:28px;height:28px;color:var(--accent2);margin-bottom:14px;"></i>
+              <h4 style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:8px;">Speed Matters</h4>
+              <p style="font-size:13px;color:var(--text2);line-height:1.6;">Results in seconds. Decisions made faster with more confidence.</p>
+            </div>
+            <div class="glass" style="padding:24px;border-radius:var(--radius);margin-top:24px;">
+              <i data-lucide="users" style="width:28px;height:28px;color:var(--warn);margin-bottom:14px;"></i>
+              <h4 style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:8px;">Human Centered</h4>
+              <p style="font-size:13px;color:var(--text2);line-height:1.6;">Tools that amplify human judgment, not replace it.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="section" style="background:rgba(255,255,255,0.01);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:60px;">
+          <span class="section-eyebrow">OUR JOURNEY</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);">
+            How we got <span class="gradient-text">here</span>
+          </h2>
+        </div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"><span>2021</span></div>
+            <div class="tl-content">
+              <h4>The Idea</h4>
+              <p>After a costly product launch failure, our founders sketched the first weighted decision model on a whiteboard. The question: can you quantify whether a decision is actually good?</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"><span>2022</span></div>
+            <div class="tl-content">
+              <h4>First Version</h4>
+              <p>A basic spreadsheet tool shared in a startup Slack. Within a week, 300 founders had copied it. We realized we were onto something real.</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"><span>2023</span></div>
+            <div class="tl-content">
+              <h4>Seed Round & Launch</h4>
+              <p>Raised $2.4M. Rebuilt the engine from scratch with real-time processing, risk heatmaps, and the inversion thinking module. Launched publicly.</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"><span>2024</span></div>
+            <div class="tl-content">
+              <h4>10,000 Users</h4>
+              <p>Hit five figures. Enterprise customers started adopting NeuralDecide for board-level strategic decisions. Dashboard and team features shipped.</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot active"><span>Now</span></div>
+            <div class="tl-content">
+              <h4>The Future</h4>
+              <p>Building collaborative decision rooms, AI-assisted factor generation, and outcome tracking. The best is ahead of us.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section class="section">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:56px;">
+          <span class="section-eyebrow">THE TEAM</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);">
+            Built by people who <span class="gradient-text">think deeply</span>
+          </h2>
+        </div>
+        <div class="team-grid">
+          <div class="glass team-card">
+            <div class="avatar-wrap" style="background:linear-gradient(135deg,#4f7dbd,#7c5cbf);">RK</div>
+            <h3>Rohan Kapoor</h3>
+            <div class="role">Co-Founder & CEO</div>
+            <p>Former product lead at Intercom. Obsessed with decision science and cognitive bias research. Author of "The Weighted Mind."</p>
+          </div>
+          <div class="glass team-card">
+            <div class="avatar-wrap" style="background:linear-gradient(135deg,#68d391,#4299e1);">ML</div>
+            <h3>Maya Lin</h3>
+            <div class="role">Co-Founder & CTO</div>
+            <p>Ex-Google Brain researcher. PhD in Computational Statistics. Built the probability engine that powers every simulation.</p>
+          </div>
+          <div class="glass team-card">
+            <div class="avatar-wrap" style="background:linear-gradient(135deg,#f6ad55,#ed8936);">JT</div>
+            <h3>James Torres</h3>
+            <div class="role">Head of Design</div>
+            <p>Previously at Linear and Figma. Believes great design is invisible — every pixel serves the decision, nothing more.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALUES -->
+    <section class="section" style="background:rgba(255,255,255,0.01);border-top:1px solid var(--border);">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:56px;">
+          <span class="section-eyebrow">OUR VALUES</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);">
+            What we stand for
+          </h2>
+        </div>
+        <div class="values-grid">
+          <div class="glass value-card">
+            <div class="value-icon"><i data-lucide="eye" style="width:20px;height:20px;color:var(--accent);"></i></div>
+            <div>
+              <h4>Radical Transparency</h4>
+              <p>We show our scoring math. You always know exactly how a verdict was calculated — no black boxes.</p>
+            </div>
+          </div>
+          <div class="glass value-card">
+            <div class="value-icon"><i data-lucide="brain" style="width:20px;height:20px;color:var(--accent2);"></i></div>
+            <div>
+              <h4>Cognitive Honesty</h4>
+              <p>We force you to confront uncertainty. Sliders aren't there to look nice — they're there to make you think.</p>
+            </div>
+          </div>
+          <div class="glass value-card">
+            <div class="value-icon"><i data-lucide="clock" style="width:20px;height:20px;color:var(--accent3);"></i></div>
+            <div>
+              <h4>Deliberate Slowness</h4>
+              <p>The cooling-off timer is non-negotiable. We built a mandatory pause into the product because we believe it matters.</p>
+            </div>
+          </div>
+          <div class="glass value-card">
+            <div class="value-icon"><i data-lucide="lock" style="width:20px;height:20px;color:var(--warn);"></i></div>
+            <div>
+              <h4>Data Sovereignty</h4>
+              <p>Your decisions are deeply personal. We will never monetize your data. Period.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding:80px 0;text-align:center;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(99,179,237,0.07) 0%,transparent 70%);">
+      <div class="container">
+        <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-bottom:16px;">
+          Come build with us
+        </h2>
+        <p style="color:var(--text2);font-size:15px;margin-bottom:28px;">We're hiring. We're building. And we'd love to work with you.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <a href="contact.html" class="btn btn-primary">
+            <i data-lucide="mail" style="width:15px;height:15px;"></i>
+            Get in Touch
+          </a>
+          <a href="simulator.html" class="btn btn-outline">Try the Simulator</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="index.html" class="nav-logo" style="margin-bottom:12px;display:inline-flex;"><div class="nav-logo-icon">⚡</div>NeuralDecide</a>
+            <p>AI-powered decision intelligence for professionals, founders, and leaders.</p>
+          </div>
+          <div class="footer-col"><h4>Product</h4><a href="services.html">Features</a><a href="simulator.html">Simulator</a><a href="dashboard.html">Dashboard</a></div>
+          <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="contact.html">Contact</a><a href="#">Careers</a></div>
+          <div class="footer-col"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2025 NeuralDecide.</span>
+          <span>Made with precision and purpose.</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    (function(){
+      const c=document.getElementById('stars');
+      for(let i=0;i<100;i++){
+        const s=document.createElement('div'); s.className='star';
+        const sz=Math.random()*2.5+0.5;
+        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--mn:0.05;--mx:${0.3+Math.random()*0.4};`;
+        c.appendChild(s);
+      }
+    })();
+    function toggleMobile(){document.getElementById('mob-menu').classList.toggle('open');}
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Simulator — Neural Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060b18;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,179,237,0.25);
+      --accent: #63b3ed;
+      --accent2: #9f7aea;
+      --accent3: #68d391;
+      --danger: #fc8181;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Nebula background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 20%, rgba(99,102,241,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(139,92,246,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(99,179,237,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Star field */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      animation: twinkle var(--dur, 3s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: var(--min-op, 0.1); transform: scale(1); }
+      50% { opacity: var(--max-op, 0.7); transform: scale(1.3); }
+    }
+
+    .glass {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .glass-bright {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+    }
+
+    /* Input styles */
+    .input-field {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 14px;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,179,237,0.12);
+    }
+    .input-field::placeholder { color: var(--muted); }
+
+    /* Slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.1);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(99,179,237,0.6);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #4f7dbd, #7c5cbf);
+      border: 1px solid rgba(99,179,237,0.3);
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      padding: 12px 24px;
+      font-size: 14px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(79,125,189,0.4);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      padding: 6px 12px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-ghost:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: rgba(252,129,129,0.06);
+    }
+
+    .btn-add {
+      background: rgba(99,179,237,0.08);
+      border: 1px dashed rgba(99,179,237,0.3);
+      border-radius: 10px;
+      color: var(--accent);
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px;
+      width: 100%;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-add:hover {
+      background: rgba(99,179,237,0.14);
+      border-color: rgba(99,179,237,0.6);
+    }
+    .btn-add.con-btn {
+      color: var(--danger);
+      background: rgba(252,129,129,0.06);
+      border-color: rgba(252,129,129,0.25);
+    }
+    .btn-add.con-btn:hover {
+      background: rgba(252,129,129,0.12);
+      border-color: rgba(252,129,129,0.5);
+    }
+
+    .factor-card {
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      animation: slideIn 0.25s ease;
+    }
+    .factor-card.pro-card { border-left: 3px solid rgba(104,211,145,0.5); }
+    .factor-card.con-card { border-left: 3px solid rgba(252,129,129,0.5); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Radial progress */
+    .radial-ring {
+      transform: rotate(-90deg);
+      transform-origin: center;
+    }
+    .ring-track { fill: none; stroke: rgba(255,255,255,0.06); }
+    .ring-progress {
+      fill: none;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Processing screen */
+    .processing-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 1.4s ease-in-out infinite;
+    }
+    .processing-dot:nth-child(2) { animation-delay: 0.2s; background: var(--accent2); }
+    .processing-dot:nth-child(3) { animation-delay: 0.4s; background: var(--accent3); }
+    @keyframes pulse-dot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99,179,237,0.6), transparent);
+      animation: scan 2s linear infinite;
+    }
+    @keyframes scan {
+      from { top: 0%; }
+      to { top: 100%; }
+    }
+
+    /* Status text fade */
+    .status-msg {
+      animation: fadeUpIn 0.5s ease;
+    }
+    @keyframes fadeUpIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Heatmap bar */
+    .heat-bar {
+      height: 28px;
+      border-radius: 6px;
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .heat-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 80%, rgba(255,255,255,0.15));
+    }
+
+    /* Verdict badge */
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Section */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Screen transitions */
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cooling button */
+    .cool-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      transition: all 0.2s;
+    }
+    .cool-btn:hover, .cool-btn.selected {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(99,179,237,0.08);
+    }
+
+    /* Mono font for numbers */
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    /* Textarea */
+    textarea.input-field { resize: vertical; min-height: 80px; }
+
+    /* Report glow header */
+    .report-header {
+      position: relative;
+      text-align: center;
+      padding: 32px 24px 24px;
+    }
+    .report-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<div style="position:relative;z-index:1;" class="max-w-3xl mx-auto px-4 py-10">
+
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style="background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.2);">
+      <span class="w-2 h-2 rounded-full bg-green-400" style="animation:pulse-dot 2s ease-in-out infinite;"></span>
+      <span class="mono text-xs" style="color:var(--accent);">NEURAL DECISION ENGINE v2.4</span>
+    </div>
+    <h1 style="font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-0.02em;line-height:1.1;" class="mb-4">
+      Decision<br>
+      <span style="background:linear-gradient(135deg,#63b3ed,#9f7aea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Simulator</span>
+    </h1>
+    <p style="color:var(--muted);font-size:15px;max-width:400px;margin:0 auto;line-height:1.6;">Weighted intelligence for high-stakes decisions. Think clearly. Act confidently.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SCREEN 1: INPUT ENGINE
+  ═══════════════════════════════════════════════════ -->
+  <div id="screen-input" class="screen active">
+
+    <!-- Decision Statement -->
+    <div class="glass p-6 mb-4">
+      <div class="section-label">
+        <i data-lucide="brain" style="width:14px;height:14px;color:var(--accent);"></i>
+        Decision Statement
+      </div>
+      <input
+        id="decision-text"
+        type="text"
+        class="input-field"
+        placeholder="What decision are you facing? e.g. Should I start a startup this year?"
+        style="font-size:16px;padding:14px 16px;"
+      />
+    </div>
+
+    <!-- Factor Lab -->
+    <div class="glass p-6 mb-4">
+      <div class="section-label">
+        <i data-lucide="flask-conical" style="width:14px;height:14px;color:var(--accent3);"></i>
+        Factor Lab
+      </div>
+
+      <div class="grid grid-cols-1 gap-4" style="grid-template-columns:1fr 1fr;">
+
+        <!-- PROS -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="trending-up" style="width:14px;height:14px;color:var(--accent3);"></i>
+            <span style="color:var(--accent3);font-size:13px;font-weight:600;letter-spacing:0.06em;">PROS</span>
+          </div>
+          <div id="pros-list"></div>
+          <button class="btn-add" onclick="addFactor('pro')">
+            <i data-lucide="plus" style="width:14px;height:14px;"></i>
+            Add Pro
+          </button>
+        </div>
+
+        <!-- CONS -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="trending-down" style="width:14px;height:14px;color:var(--danger);"></i>
+            <span style="color:var(--danger);font-size:13px;font-weight:600;letter-spacing:0.06em;">CONS</span>
+          </div>
+          <div id="cons-list"></div>
+          <button class="btn-add con-btn" onclick="addFactor('con')">
+            <i data-lucide="plus" style="width:14px;height:14px;"></i>
+            Add Con
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cooling-off period -->
+    <div class="glass p-6 mb-6">
+      <div class="section-label">
+        <i data-lucide="timer" style="width:14px;height:14px;color:var(--accent2);"></i>
+        Cooling-Off Period
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="cool-btn selected" data-seconds="60" onclick="selectCooling(this, 60)">1 minute</button>
+        <button class="cool-btn" data-seconds="300" onclick="selectCooling(this, 300)">5 minutes</button>
+        <button class="cool-btn" data-seconds="3600" onclick="selectCooling(this, 3600)">1 hour</button>
+        <button class="cool-btn" data-seconds="86400" onclick="selectCooling(this, 86400)">24 hours</button>
+      </div>
+    </div>
+
+    <!-- Start Button -->
+    <div class="text-center">
+      <button class="btn-primary" onclick="startSimulation()" style="padding:16px 40px;font-size:15px;">
+        <i data-lucide="zap" style="width:18px;height:18px;"></i>
+        Start Simulation
+      </button>
+    </div>
+
+    <p id="input-error" class="text-center mt-4 text-sm" style="color:var(--danger);display:none;"></p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SCREEN 2: NEURAL PROCESSING
+  ═══════════════════════════════════════════════════ -->
+  <div id="screen-processing" class="screen">
+    <div class="glass-bright p-10 text-center" style="position:relative;overflow:hidden;">
+      <div class="scan-line"></div>
+
+      <!-- Radial timer -->
+      <div style="position:relative;display:inline-block;margin-bottom:24px;">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle class="ring-track radial-ring" cx="90" cy="90" r="76" stroke-width="6"/>
+          <circle id="timer-ring" class="ring-progress radial-ring" cx="90" cy="90" r="76"
+            stroke-width="6"
+            stroke="url(#timerGrad)"
+            stroke-dasharray="477.5"
+            stroke-dashoffset="0"
+          />
+          <defs>
+            <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#63b3ed"/>
+              <stop offset="100%" stop-color="#9f7aea"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <span id="timer-display" class="mono" style="font-size:36px;font-weight:700;color:var(--accent);"></span>
+          <span style="font-size:11px;color:var(--muted);letter-spacing:0.1em;">REMAINING</span>
+        </div>
+      </div>
+
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Neural Processing</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Running weighted intelligence models...</p>
+
+      <!-- Status messages -->
+      <div style="min-height:28px;margin-bottom:24px;">
+        <p id="status-msg" class="status-msg mono" style="color:var(--accent);font-size:13px;"></p>
+      </div>
+
+      <!-- Dots -->
+      <div class="flex justify-center gap-2">
+        <div class="processing-dot"></div>
+        <div class="processing-dot"></div>
+        <div class="processing-dot"></div>
+      </div>
+
+      <!-- Decision label -->
+      <div class="mt-8 px-4 py-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:4px;letter-spacing:0.08em;">ANALYZING</p>
+        <p id="proc-decision" style="font-size:14px;color:var(--text);font-style:italic;">"..."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SCREEN 3: REPORT
+  ═══════════════════════════════════════════════════ -->
+  <div id="screen-report" class="screen">
+
+    <!-- Header -->
+    <div class="glass-bright mb-4 report-header">
+      <p class="mono text-xs mb-3" style="color:var(--muted);letter-spacing:0.1em;">DECISION INTELLIGENCE REPORT</p>
+      <p id="report-decision" class="mb-6" style="font-size:17px;font-style:italic;color:var(--text);"></p>
+
+      <!-- Success probability radial -->
+      <div style="position:relative;display:inline-block;margin-bottom:16px;">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle class="ring-track radial-ring" cx="80" cy="80" r="66" stroke-width="8"/>
+          <circle id="prob-ring" class="ring-progress radial-ring" cx="80" cy="80" r="66"
+            stroke-width="8"
+            stroke="url(#probGrad)"
+            stroke-dasharray="414.7"
+            stroke-dashoffset="414.7"
+          />
+          <defs>
+            <linearGradient id="probGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#68d391"/>
+              <stop offset="100%" stop-color="#63b3ed"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <span id="prob-display" class="mono" style="font-size:34px;font-weight:800;color:var(--accent3);">0%</span>
+          <span style="font-size:10px;color:var(--muted);letter-spacing:0.1em;">SUCCESS PROB.</span>
+        </div>
+      </div>
+
+      <!-- Verdict -->
+      <div>
+        <span id="verdict-badge" class="verdict-badge"></span>
+      </div>
+    </div>
+
+    <!-- Score breakdown -->
+    <div class="glass p-5 mb-4">
+      <div class="section-label">
+        <i data-lucide="bar-chart-2" style="width:14px;height:14px;color:var(--accent);"></i>
+        Score Breakdown
+      </div>
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div style="background:rgba(104,211,145,0.06);border:1px solid rgba(104,211,145,0.2);border-radius:12px;padding:14px;">
+          <p class="mono" id="score-pro" style="font-size:24px;font-weight:700;color:var(--accent3);">0</p>
+          <p style="font-size:11px;color:var(--muted);margin-top:4px;">PRO SCORE</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:14px;">
+          <p class="mono" id="score-raw" style="font-size:24px;font-weight:700;color:var(--accent);">0</p>
+          <p style="font-size:11px;color:var(--muted);margin-top:4px;">NET SCORE</p>
+        </div>
+        <div style="background:rgba(252,129,129,0.06);border:1px solid rgba(252,129,129,0.2);border-radius:12px;padding:14px;">
+          <p class="mono" id="score-con" style="font-size:24px;font-weight:700;color:var(--danger);">0</p>
+          <p style="font-size:11px;color:var(--muted);margin-top:4px;">CON SCORE</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Heatmap -->
+    <div class="glass p-5 mb-4">
+      <div class="section-label">
+        <i data-lucide="flame" style="width:14px;height:14px;color:var(--danger);"></i>
+        Risk Heatmap — Cons
+      </div>
+      <div id="risk-heatmap"></div>
+      <p id="no-cons-msg" style="color:var(--muted);font-size:13px;display:none;">No cons added — clean slate!</p>
+    </div>
+
+    <!-- Inversion Question -->
+    <div class="glass p-5 mb-6">
+      <div class="section-label">
+        <i data-lucide="rotate-ccw" style="width:14px;height:14px;color:var(--accent2);"></i>
+        Inversion Thinking
+      </div>
+      <p style="color:var(--text);font-size:14px;margin-bottom:14px;line-height:1.6;">
+        <span style="color:var(--accent2);font-style:italic;">"If this decision failed 6 months from now, what would be the most likely reason?"</span>
+      </p>
+      <textarea id="inversion-answer" class="input-field" placeholder="Write your honest answer here. This is the most important part..."></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 justify-center flex-wrap">
+      <button class="btn-primary" onclick="resetSimulator()">
+        <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
+        New Simulation
+      </button>
+      <button class="btn-ghost" onclick="saveReport()" style="padding:12px 20px;font-size:14px;color:var(--accent);border-color:rgba(99,179,237,0.25);">
+        <i data-lucide="save" style="width:14px;height:14px;"></i>
+        Save to Local Storage
+      </button>
+    </div>
+    <p id="save-confirm" class="text-center mt-3 text-sm" style="color:var(--accent3);display:none;">✓ Saved to local storage</p>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+  // ═══════════════════════════════════════════════
+  // STAR FIELD
+  // ═══════════════════════════════════════════════
+  (function createStars() {
+    const container = document.getElementById('stars');
+    for (let i = 0; i < 120; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 2.5 + 0.5;
+      star.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;top:${Math.random()*100}%;
+        --dur:${2+Math.random()*4}s;
+        --delay:${Math.random()*4}s;
+        --min-op:${0.05+Math.random()*0.15};
+        --max-op:${0.4+Math.random()*0.5};
+      `;
+      container.appendChild(star);
+    }
+  })();
+
+  // ═══════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════
+  let coolingSeconds = 60;
+  let timerInterval = null;
+  let statusInterval = null;
+  let currentReport = null;
+
+  const STATUS_MESSAGES = [
+    'Calculating second order effects...',
+    'Simulating market volatility...',
+    'Analyzing long-term impact...',
+    'Running probability matrices...',
+    'Processing uncertainty models...',
+    'Mapping cognitive biases...',
+    'Evaluating regret minimization...',
+    'Stress-testing assumptions...',
+    'Computing risk-adjusted returns...',
+    'Synthesizing decision vectors...',
+  ];
+
+  // ═══════════════════════════════════════════════
+  // FACTOR MANAGEMENT
+  // ═══════════════════════════════════════════════
+  function addFactor(type) {
+    const listId = type === 'pro' ? 'pros-list' : 'cons-list';
+    const list = document.getElementById(listId);
+    const id = `${type}-${Date.now()}`;
+    const cardClass = type === 'pro' ? 'pro-card' : 'con-card';
+    const color = type === 'pro' ? 'var(--accent3)' : 'var(--danger)';
+
+    const card = document.createElement('div');
+    card.className = `factor-card ${cardClass}`;
+    card.id = id;
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <input type="text" class="input-field factor-text" placeholder="${type === 'pro' ? 'e.g. High market demand' : 'e.g. Funding uncertainty'}" style="flex:1;" />
+        <button class="btn-ghost" onclick="removeFactor('${id}')" title="Remove">
+          <i data-lucide="x" style="width:13px;height:13px;"></i>
+        </button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;color:var(--muted);letter-spacing:0.06em;">WEIGHT</span>
+            <span class="mono weight-val" style="font-size:12px;color:${color};">5</span>
+          </div>
+          <input type="range" min="1" max="10" value="5" class="factor-weight"
+            style="width:100%;accent-color:${color};"
+            oninput="this.previousElementSibling.querySelector('.weight-val') || this.closest('.factor-card').querySelector('.weight-val').textContent = this.value"
+            onchange="updateSliderDisplay(this, 'weight-val')"
+            oninput="updateSliderDisplay(this, 'weight-val')"
+          />
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;color:var(--muted);letter-spacing:0.06em;">CERTAINTY</span>
+            <span class="mono cert-val" style="font-size:12px;color:${color};">5</span>
+          </div>
+          <input type="range" min="1" max="10" value="5" class="factor-certainty"
+            style="width:100%;accent-color:${color};"
+            oninput="updateSliderDisplay(this, 'cert-val')"
+          />
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+    lucide.createIcons();
+  }
+
+  function updateSliderDisplay(slider, cls) {
+    const card = slider.closest('.factor-card');
+    card.querySelector('.' + cls).textContent = slider.value;
+  }
+
+  function removeFactor(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.animation = 'none';
+      el.style.opacity = '0';
+      el.style.transform = 'scale(0.9)';
+      el.style.transition = 'all 0.2s';
+      setTimeout(() => el.remove(), 200);
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // COOLING PERIOD
+  // ═══════════════════════════════════════════════
+  function selectCooling(btn, seconds) {
+    document.querySelectorAll('.cool-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    coolingSeconds = seconds;
+  }
+
+  // ═══════════════════════════════════════════════
+  // COLLECT FORM DATA
+  // ═══════════════════════════════════════════════
+  function collectData() {
+    const decision = document.getElementById('decision-text').value.trim();
+    if (!decision) return null;
+
+    const pros = [];
+    document.querySelectorAll('#pros-list .factor-card').forEach(card => {
+      const text = card.querySelector('.factor-text').value.trim();
+      const weight = parseInt(card.querySelector('.factor-weight').value);
+      const certainty = parseInt(card.querySelector('.factor-certainty').value);
+      if (text) pros.push({ text, weight, certainty });
+    });
+
+    const cons = [];
+    document.querySelectorAll('#cons-list .factor-card').forEach(card => {
+      const text = card.querySelector('.factor-text').value.trim();
+      const weight = parseInt(card.querySelector('.factor-weight').value);
+      const certainty = parseInt(card.querySelector('.factor-certainty').value);
+      if (text) cons.push({ text, weight, certainty });
+    });
+
+    return { decision, pros, cons, coolingSeconds };
+  }
+
+  // ═══════════════════════════════════════════════
+  // SHOW / HIDE SCREENS
+  // ═══════════════════════════════════════════════
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ═══════════════════════════════════════════════
+  // START SIMULATION
+  // ═══════════════════════════════════════════════
+  async function startSimulation() {
+    const data = collectData();
+    const errEl = document.getElementById('input-error');
+
+    if (!data || !data.decision) {
+      errEl.textContent = 'Please enter a decision statement.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (data.pros.length === 0 && data.cons.length === 0) {
+      errEl.textContent = 'Add at least one pro or con factor.';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    // Save to localStorage
+    localStorage.setItem('decision_simulator_input', JSON.stringify(data));
+
+    // Show processing
+    document.getElementById('proc-decision').textContent = `"${data.decision}"`;
+    showScreen('processing');
+
+    // Start countdown
+    startCountdown(data.coolingSeconds);
+
+    // Status messages rotation
+    let msgIdx = 0;
+    const statusEl = document.getElementById('status-msg');
+    statusEl.textContent = STATUS_MESSAGES[0];
+    statusInterval = setInterval(() => {
+      msgIdx = (msgIdx + 1) % STATUS_MESSAGES.length;
+      statusEl.classList.remove('status-msg');
+      void statusEl.offsetWidth; // reflow to restart animation
+      statusEl.classList.add('status-msg');
+      statusEl.textContent = STATUS_MESSAGES[msgIdx];
+    }, 3000);
+
+    // Send to backend
+    try {
+      const res = await fetch('/api/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      currentReport = await res.json();
+    } catch (e) {
+      console.error('Backend error:', e);
+      // Fallback: compute locally
+      currentReport = computeLocally(data);
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // FALLBACK LOCAL COMPUTATION
+  // ═══════════════════════════════════════════════
+  function computeLocally(data) {
+    const proScore = data.pros.reduce((s, p) => s + p.weight * p.certainty, 0);
+    const conScore = data.cons.reduce((s, c) => s + c.weight * c.certainty, 0);
+    const total = (data.pros.length + data.cons.length) * 100;
+    const rawScore = total > 0 ? ((proScore - conScore) / total) * 100 : 0;
+    const successProbability = Math.round(Math.max(0, Math.min(100, (rawScore + 100) / 2)));
+    let verdict;
+    if (rawScore > 40) verdict = 'Strongly Recommended';
+    else if (rawScore > 10) verdict = 'Likely Positive';
+    else if (rawScore > -10) verdict = 'Proceed with Caution';
+    else if (rawScore > -40) verdict = 'Not Recommended';
+    else verdict = 'High Risk';
+    const riskyCons = data.cons.map(c => ({ ...c, riskScore: c.weight * c.certainty }))
+      .sort((a, b) => b.riskScore - a.riskScore);
+    return { ...data, proScore, conScore, rawScore: Math.round(rawScore), successProbability, verdict, riskyCons };
+  }
+
+  // ═══════════════════════════════════════════════
+  // COUNTDOWN TIMER
+  // ═══════════════════════════════════════════════
+  function startCountdown(seconds) {
+    let remaining = seconds;
+    const circumference = 477.5;
+    const ring = document.getElementById('timer-ring');
+    const display = document.getElementById('timer-display');
+
+    function formatTime(s) {
+      if (s < 60) return `${s}s`;
+      if (s < 3600) return `${Math.floor(s/60)}m ${s%60}s`;
+      return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
+    }
+
+    function update() {
+      display.textContent = formatTime(remaining);
+      const progress = remaining / seconds;
+      ring.style.strokeDashoffset = circumference * (1 - progress);
+    }
+
+    update();
+    timerInterval = setInterval(() => {
+      remaining--;
+      update();
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(statusInterval);
+        showReport();
+      }
+    }, 1000);
+  }
+
+  // ═══════════════════════════════════════════════
+  // SHOW REPORT
+  // ═══════════════════════════════════════════════
+  function showReport() {
+    if (!currentReport) return;
+
+    showScreen('report');
+
+    const r = currentReport;
+
+    // Decision label
+    document.getElementById('report-decision').textContent = `"${r.decision}"`;
+
+    // Scores
+    document.getElementById('score-pro').textContent = r.proScore;
+    document.getElementById('score-con').textContent = r.conScore;
+    const rawEl = document.getElementById('score-raw');
+    rawEl.textContent = (r.rawScore > 0 ? '+' : '') + r.rawScore;
+    rawEl.style.color = r.rawScore > 0 ? 'var(--accent3)' : r.rawScore < 0 ? 'var(--danger)' : 'var(--accent)';
+
+    // Animate probability ring
+    const circumference = 414.7;
+    const ring = document.getElementById('prob-ring');
+    const probDisplay = document.getElementById('prob-display');
+    setTimeout(() => {
+      ring.style.strokeDashoffset = circumference * (1 - r.successProbability / 100);
+      let count = 0;
+      const countInterval = setInterval(() => {
+        count += 2;
+        if (count >= r.successProbability) {
+          count = r.successProbability;
+          clearInterval(countInterval);
+        }
+        probDisplay.textContent = count + '%';
+      }, 20);
+    }, 300);
+
+    // Verdict badge
+    const badge = document.getElementById('verdict-badge');
+    const verdictStyles = {
+      'Strongly Recommended': { bg: 'rgba(104,211,145,0.15)', border: 'rgba(104,211,145,0.4)', color: '#68d391', icon: 'check-circle-2' },
+      'Likely Positive':      { bg: 'rgba(99,179,237,0.12)', border: 'rgba(99,179,237,0.35)', color: '#63b3ed', icon: 'thumbs-up' },
+      'Proceed with Caution': { bg: 'rgba(246,173,85,0.12)', border: 'rgba(246,173,85,0.35)', color: '#f6ad55', icon: 'alert-triangle' },
+      'Not Recommended':      { bg: 'rgba(252,129,129,0.12)', border: 'rgba(252,129,129,0.3)', color: '#fc8181', icon: 'x-circle' },
+      'High Risk':            { bg: 'rgba(197,48,48,0.15)', border: 'rgba(252,129,129,0.5)', color: '#fc8181', icon: 'skull' },
+    };
+    const vs = verdictStyles[r.verdict] || verdictStyles['Proceed with Caution'];
+    badge.style.cssText = `background:${vs.bg};border:1px solid ${vs.border};color:${vs.color};`;
+    badge.innerHTML = `<i data-lucide="${vs.icon}" style="width:16px;height:16px;"></i> ${r.verdict}`;
+
+    // Risk Heatmap
+    const heatmap = document.getElementById('risk-heatmap');
+    const noCons = document.getElementById('no-cons-msg');
+    heatmap.innerHTML = '';
+
+    if (!r.riskyCons || r.riskyCons.length === 0) {
+      noCons.style.display = 'block';
+    } else {
+      noCons.style.display = 'none';
+      const maxRisk = r.riskyCons[0].riskScore;
+      r.riskyCons.forEach(con => {
+        const pct = maxRisk > 0 ? (con.riskScore / maxRisk) * 100 : 0;
+        const intensity = Math.round(40 + (con.riskScore / 100) * 215);
+        const row = document.createElement('div');
+        row.style.marginBottom = '10px';
+        row.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <span style="font-size:13px;color:var(--text);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${con.text}</span>
+            <span class="mono" style="font-size:12px;color:var(--danger);">W:${con.weight} × C:${con.certainty} = ${con.riskScore}</span>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden;height:28px;">
+            <div class="heat-bar" style="
+              width:0%;
+              background:linear-gradient(90deg, rgba(197,48,48,0.7), rgb(${intensity},40,40));
+              box-shadow:0 0 12px rgba(${intensity},40,40,0.4);
+            " data-width="${pct}%"></div>
+          </div>
+        `;
+        heatmap.appendChild(row);
+      });
+      // Animate bars
+      setTimeout(() => {
+        heatmap.querySelectorAll('.heat-bar').forEach(bar => {
+          bar.style.width = bar.dataset.width;
+        });
+      }, 400);
+    }
+
+    lucide.createIcons();
+    localStorage.setItem('decision_simulator_report', JSON.stringify(r));
+  }
+
+  // ═══════════════════════════════════════════════
+  // SAVE REPORT
+  // ═══════════════════════════════════════════════
+  function saveReport() {
+    if (currentReport) {
+      const full = {
+        ...currentReport,
+        inversionAnswer: document.getElementById('inversion-answer').value,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem('decision_simulator_report', JSON.stringify(full));
+      const confirm = document.getElementById('save-confirm');
+      confirm.style.display = 'block';
+      setTimeout(() => confirm.style.display = 'none', 3000);
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // RESET
+  // ═══════════════════════════════════════════════
+  function resetSimulator() {
+    clearInterval(timerInterval);
+    clearInterval(statusInterval);
+    currentReport = null;
+
+    document.getElementById('decision-text').value = '';
+    document.getElementById('pros-list').innerHTML = '';
+    document.getElementById('cons-list').innerHTML = '';
+    document.getElementById('inversion-answer').value = '';
+    document.getElementById('input-error').style.display = 'none';
+
+    // Reset cooling
+    coolingSeconds = 60;
+    document.querySelectorAll('.cool-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector('[data-seconds="60"]').classList.add('selected');
+
+    showScreen('input');
+  }
+
+  // ═══════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════
+  lucide.createIcons();
+
+  // Add default factors
+  addFactor('pro');
+  addFactor('con');
+
+  // Load from localStorage if present
+  const saved = localStorage.getItem('decision_simulator_input');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data.decision) {
+        document.getElementById('decision-text').value = data.decision;
+      }
+    } catch(e) {}
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Services — NeuralDecide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="shared.css"/>
+  <style>
+    .page-hero { padding: calc(var(--nav-h) + 80px) 0 80px; text-align:center; }
+
+    /* Feature spotlight */
+    .spotlight { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; }
+    .spotlight.flip { direction:rtl; }
+    .spotlight.flip > * { direction:ltr; }
+    .spot-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 14px; border-radius:100px; font-size:11px;
+      font-weight:700; letter-spacing:0.1em; margin-bottom:16px;
+    }
+    .spot-visual {
+      background:var(--surface); border:1px solid var(--border); border-radius:20px;
+      overflow:hidden; padding:28px; position:relative;
+    }
+    .spot-visual::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    }
+
+    /* Pricing */
+    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .price-card { padding:32px; border-radius:var(--radius); transition:transform 0.2s; }
+    .price-card:hover { transform:translateY(-4px); }
+    .price-card.featured {
+      background:rgba(99,179,237,0.06);
+      border:1px solid rgba(99,179,237,0.3) !important;
+      position:relative; overflow:hidden;
+    }
+    .price-card.featured::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,#63b3ed,#9f7aea);
+    }
+    .popular-tag {
+      position:absolute; top:16px; right:16px;
+      background:linear-gradient(135deg,#4f7dbd,#7c5cbf);
+      color:white; font-size:11px; font-weight:700; letter-spacing:0.08em;
+      padding:4px 10px; border-radius:100px;
+    }
+    .price-num { font-family:var(--font-display); font-size:42px; font-weight:800; line-height:1; margin:16px 0 4px; }
+    .price-per { color:var(--text2); font-size:13px; }
+    .price-divider { height:1px; background:var(--border); margin:20px 0; }
+    .price-feature {
+      display:flex; align-items:flex-start; gap:10px;
+      font-size:13px; color:var(--text2); margin-bottom:10px;
+    }
+    .price-feature .chk { color:var(--accent3); flex-shrink:0; margin-top:1px; }
+    .price-feature .x   { color:var(--muted);   flex-shrink:0; margin-top:1px; }
+
+    /* Comparison table */
+    .comp-table { width:100%; border-collapse:separate; border-spacing:0; }
+    .comp-table th, .comp-table td { padding:14px 16px; text-align:left; border-bottom:1px solid var(--border); font-size:14px; }
+    .comp-table th { font-family:var(--font-display); font-size:12px; font-weight:700; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; background:var(--surface); }
+    .comp-table th:not(:first-child), .comp-table td:not(:first-child) { text-align:center; }
+    .comp-table tr:last-child td { border-bottom:none; }
+    .comp-table .feat-col { color:var(--text2); }
+    .comp-table .yes { color:var(--accent3); font-size:16px; }
+    .comp-table .no  { color:var(--muted); font-size:16px; }
+    .comp-table .hl  { color:var(--accent); font-weight:600; }
+
+    /* Use cases */
+    .use-cases { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .use-card {
+      padding:22px; border-radius:var(--radius); cursor:pointer;
+      transition:all 0.2s; border:1px solid transparent;
+      background:var(--surface);
+    }
+    .use-card:hover { border-color:rgba(99,179,237,0.2); transform:translateY(-2px); }
+    .use-card h4 { font-family:var(--font-display); font-size:14px; font-weight:700; margin-bottom:6px; }
+    .use-card p  { font-size:12px; color:var(--text2); line-height:1.55; }
+
+    @media(max-width:900px){
+      .spotlight { grid-template-columns:1fr; gap:32px; }
+      .spotlight.flip { direction:ltr; }
+      .pricing-grid { grid-template-columns:1fr; max-width:400px; margin:0 auto; }
+      .use-cases { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:640px){
+      .use-cases { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nebula"></div>
+  <div class="grid-overlay"></div>
+  <div class="stars" id="stars"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><div class="nav-logo-icon">⚡</div>NeuralDecide</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html" class="active">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+      <a href="simulator.html" class="nav-cta">Launch Simulator →</a>
+      <button class="nav-mobile-btn" onclick="toggleMobile()">
+        <i data-lucide="menu" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="mob-menu">
+    <a href="index.html">Home</a>
+    <a href="services.html" class="active">Services</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="simulator.html" style="color:var(--accent);">Launch Simulator →</a>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- HERO -->
+    <section class="page-hero">
+      <div class="container">
+        <span class="section-eyebrow">FEATURES & SERVICES</span>
+        <h1 class="display animate-fade-up" style="font-size:clamp(2.4rem,5vw,3.8rem);margin-bottom:16px;">
+          Everything you need to<br><span class="gradient-text">decide with precision</span>
+        </h1>
+        <p style="color:var(--text2);font-size:17px;max-width:520px;margin:0 auto 32px;" class="animate-fade-up">
+          A complete decision intelligence system built on behavioral science, probability modeling, and rigorous cognitive frameworks.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <a href="simulator.html" class="btn btn-primary btn-lg">Start Free</a>
+          <a href="contact.html" class="btn btn-outline btn-lg">Talk to Sales</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPOTLIGHTS -->
+    <section class="section">
+      <div class="container" style="display:flex;flex-direction:column;gap:80px;">
+
+        <!-- 1 -->
+        <div class="spotlight">
+          <div>
+            <span class="spot-badge" style="background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.2);color:var(--accent);">
+              <i data-lucide="scale" style="width:13px;height:13px;"></i>
+              WEIGHTED SCORING ENGINE
+            </span>
+            <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-bottom:16px;">
+              Math beats <span class="gradient-text">intuition</span>
+            </h2>
+            <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:20px;">
+              Every factor you add — pro or con — gets a weight (1–10, how important is this?) and a certainty score (1–10, how sure are you?). The engine multiplies them, aggregates the results, and spits out a precision score.
+            </p>
+            <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:24px;">
+              The formula is: <span class="mono" style="color:var(--accent);font-size:13px;background:rgba(99,179,237,0.08);padding:3px 8px;border-radius:4px;">Score = (ΣPro_w×c − ΣCon_w×c) / MaxPossible × 100</span>
+            </p>
+            <a href="simulator.html" class="btn btn-ghost">
+              <i data-lucide="play" style="width:14px;height:14px;"></i>
+              Try the Engine
+            </a>
+          </div>
+          <div class="spot-visual">
+            <p style="font-size:11px;color:var(--text2);letter-spacing:0.1em;margin-bottom:16px;">FACTOR ANALYSIS</p>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                <span style="color:var(--accent3);">Market demand is clear</span>
+                <span class="mono" style="color:var(--accent3);">W:9 × C:8 = 72</span>
+              </div>
+              <div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">
+                <div style="width:72%;height:100%;background:linear-gradient(90deg,#68d391,#4299e1);"></div>
+              </div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                <span style="color:var(--accent3);">Strong co-founder fit</span>
+                <span class="mono" style="color:var(--accent3);">W:8 × C:9 = 72</span>
+              </div>
+              <div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">
+                <div style="width:72%;height:100%;background:linear-gradient(90deg,#68d391,#4299e1);"></div>
+              </div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                <span style="color:var(--danger);">Runway is tight</span>
+                <span class="mono" style="color:var(--danger);">W:9 × C:7 = 63</span>
+              </div>
+              <div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">
+                <div style="width:63%;height:100%;background:linear-gradient(90deg,#fc8181,#c05252);"></div>
+              </div>
+            </div>
+            <div style="padding:14px;border-radius:10px;background:rgba(104,211,145,0.06);border:1px solid rgba(104,211,145,0.2);text-align:center;">
+              <span style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--accent3);">+34</span>
+              <span style="font-size:12px;color:var(--text2);margin-left:8px;">Net Decision Score</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="spotlight flip">
+          <div>
+            <span class="spot-badge" style="background:rgba(159,122,234,0.1);border:1px solid rgba(159,122,234,0.2);color:var(--accent2);">
+              <i data-lucide="flame" style="width:13px;height:13px;"></i>
+              RISK HEATMAP
+            </span>
+            <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-bottom:16px;">
+              See risk before it <span style="background:linear-gradient(135deg,#fc8181,#9f7aea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">sees you</span>
+            </h2>
+            <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:24px;">
+              The risk heatmap ranks your cons by severity in real time. Bars get darker and wider with higher weight × certainty scores. You instantly see which blockers need to be addressed before committing.
+            </p>
+            <a href="simulator.html" class="btn btn-ghost">
+              <i data-lucide="bar-chart-2" style="width:14px;height:14px;"></i>
+              See It Live
+            </a>
+          </div>
+          <div class="spot-visual">
+            <p style="font-size:11px;color:var(--text2);letter-spacing:0.1em;margin-bottom:16px;">RISK HEATMAP</p>
+            <div style="margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                <span style="color:var(--danger);">No technical co-founder</span>
+                <span class="mono" style="color:var(--danger);">81</span>
+              </div>
+              <div style="height:28px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                <div style="width:90%;height:100%;background:linear-gradient(90deg,rgba(180,30,30,0.8),rgb(220,50,50));"></div>
+              </div>
+            </div>
+            <div style="margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                <span style="color:var(--danger);">Market timing uncertain</span>
+                <span class="mono" style="color:var(--danger);">56</span>
+              </div>
+              <div style="height:28px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                <div style="width:62%;height:100%;background:linear-gradient(90deg,rgba(140,30,30,0.7),rgb(180,50,50));"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                <span style="color:var(--danger);">Legal complexity</span>
+                <span class="mono" style="color:var(--danger);">30</span>
+              </div>
+              <div style="height:28px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                <div style="width:33%;height:100%;background:linear-gradient(90deg,rgba(100,20,20,0.7),rgb(140,40,40));"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="spotlight">
+          <div>
+            <span class="spot-badge" style="background:rgba(104,211,145,0.1);border:1px solid rgba(104,211,145,0.2);color:var(--accent3);">
+              <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i>
+              INVERSION THINKING
+            </span>
+            <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-bottom:16px;">
+              Think <span class="gradient-text-green">backwards</span> to move forward
+            </h2>
+            <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:24px;">
+              Inspired by Charlie Munger's mental model: instead of only asking "how do I succeed?", we also ask "how would I most likely fail?"
+              The inversion prompt is built into every report — and it catches the blind spots your optimism misses.
+            </p>
+            <a href="simulator.html" class="btn btn-ghost">
+              <i data-lucide="lightbulb" style="width:14px;height:14px;"></i>
+              Try Inversion
+            </a>
+          </div>
+          <div class="spot-visual" style="position:relative;">
+            <p style="font-size:11px;color:var(--text2);letter-spacing:0.1em;margin-bottom:16px;">INVERSION PROMPT</p>
+            <div style="padding:16px;background:rgba(159,122,234,0.06);border:1px solid rgba(159,122,234,0.2);border-radius:10px;margin-bottom:16px;">
+              <p style="font-size:14px;color:var(--accent2);font-style:italic;line-height:1.6;">"If this decision failed 6 months from now, what would be the most likely reason?"</p>
+            </div>
+            <div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;min-height:80px;">
+              <p style="font-size:13px;color:var(--text2);line-height:1.65;">We hired too fast before validating revenue. The burn rate exceeded our runway by month 4 and we hadn't found PMF yet...</p>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:var(--accent3);"></div>
+                <span style="font-size:11px;color:var(--muted);">Saved to decision log</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section class="section" style="background:rgba(255,255,255,0.01);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:52px;">
+          <span class="section-eyebrow">WHO IT'S FOR</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);">
+            Built for <span class="gradient-text">everyone</span> who decides
+          </h2>
+        </div>
+        <div class="use-cases">
+          <div class="use-card">
+            <div style="font-size:24px;margin-bottom:10px;">🚀</div>
+            <h4>Founders</h4>
+            <p>Product bets, co-founder choices, fundraising rounds, market timing — every high-stakes startup call.</p>
+          </div>
+          <div class="use-card">
+            <div style="font-size:24px;margin-bottom:10px;">💼</div>
+            <h4>Executives</h4>
+            <p>Board decisions, acquisitions, restructures. Bring data to the table, not just slides.</p>
+          </div>
+          <div class="use-card">
+            <div style="font-size:24px;margin-bottom:10px;">📈</div>
+            <h4>Investors</h4>
+            <p>Term sheet analysis, portfolio allocation, exit timing. Quantify conviction with rigor.</p>
+          </div>
+          <div class="use-card">
+            <div style="font-size:24px;margin-bottom:10px;">🎯</div>
+            <h4>Product Managers</h4>
+            <p>Feature prioritization, build vs. buy, roadmap tradeoffs — all with weighted evidence.</p>
+          </div>
+          <div class="use-card">
+            <div style="font-size:24px;margin-bottom:10px;">🧠</div>
+            <h4>Individuals</h4>
+            <p>Career changes, major purchases, life decisions. You deserve the same rigor as a Fortune 500 board.</p>
+          </div>
+          <div class="use-card">
+            <div style="font-size:24px;margin-bottom:10px;">🏗️</div>
+            <h4>Engineering Leaders</h4>
+            <p>Architecture decisions, tech debt tradeoffs, build vs. buy, vendor selection.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section">
+      <div class="container">
+        <div style="text-align:center;margin-bottom:56px;">
+          <span class="section-eyebrow">PRICING</span>
+          <h2 class="display" style="font-size:clamp(1.8rem,3.5vw,2.6rem);">
+            Simple, <span class="gradient-text">honest</span> pricing
+          </h2>
+          <p style="color:var(--text2);font-size:15px;margin-top:12px;">Start free. Scale as you grow. No surprises.</p>
+        </div>
+        <div class="pricing-grid">
+
+          <!-- Free -->
+          <div class="glass price-card">
+            <div class="label" style="color:var(--accent3);margin-bottom:10px;">FREE</div>
+            <h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;">Starter</h3>
+            <div class="price-num gradient-text-green">$0</div>
+            <div class="price-per">forever, no credit card</div>
+            <div class="price-divider"></div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Unlimited simulations</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Full scoring engine</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Risk heatmap</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Inversion prompts</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Local storage save</div>
+            <div class="price-feature"><i data-lucide="x" class="x" style="width:15px;height:15px;"></i> <span style="color:var(--muted);">Cloud history sync</span></div>
+            <div class="price-feature"><i data-lucide="x" class="x" style="width:15px;height:15px;"></i> <span style="color:var(--muted);">Team collaboration</span></div>
+            <div style="margin-top:24px;">
+              <a href="simulator.html" class="btn btn-outline" style="width:100%;justify-content:center;">Get Started Free</a>
+            </div>
+          </div>
+
+          <!-- Pro -->
+          <div class="glass featured price-card">
+            <div class="popular-tag">MOST POPULAR</div>
+            <div class="label" style="color:var(--accent);margin-bottom:10px;">PRO</div>
+            <h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;">Professional</h3>
+            <div class="price-num gradient-text">$19</div>
+            <div class="price-per">per month, billed annually</div>
+            <div class="price-divider"></div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Everything in Free</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Cloud history sync</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Decision analytics</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Export to PDF</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Outcome tracking</div>
+            <div class="price-feature"><i data-lucide="x" class="x" style="width:15px;height:15px;"></i> <span style="color:var(--muted);">Team seats</span></div>
+            <div style="margin-top:24px;">
+              <a href="contact.html" class="btn btn-primary" style="width:100%;justify-content:center;">Start Pro Trial</a>
+            </div>
+          </div>
+
+          <!-- Enterprise -->
+          <div class="glass price-card">
+            <div class="label" style="color:var(--accent2);margin-bottom:10px;">ENTERPRISE</div>
+            <h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;">Teams</h3>
+            <div class="price-num" style="color:var(--accent2);">Custom</div>
+            <div class="price-per">contact for pricing</div>
+            <div class="price-divider"></div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Everything in Pro</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Collaborative rooms</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Custom templates</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> SSO & audit logs</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> API access</div>
+            <div class="price-feature"><i data-lucide="check" class="chk" style="width:15px;height:15px;"></i> Dedicated support</div>
+            <div style="margin-top:24px;">
+              <a href="contact.html" class="btn btn-ghost" style="width:100%;justify-content:center;">Talk to Sales</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div class="footer-brand"><a href="index.html" class="nav-logo" style="margin-bottom:12px;display:inline-flex;"><div class="nav-logo-icon">⚡</div>NeuralDecide</a><p>AI-powered decision intelligence.</p></div>
+          <div class="footer-col"><h4>Product</h4><a href="services.html">Features</a><a href="simulator.html">Simulator</a><a href="dashboard.html">Dashboard</a></div>
+          <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="contact.html">Contact</a></div>
+          <div class="footer-col"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+        </div>
+        <div class="footer-bottom"><span>© 2025 NeuralDecide.</span><span>Made with precision.</span></div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    (function(){
+      const c=document.getElementById('stars');
+      for(let i=0;i<80;i++){
+        const s=document.createElement('div'); s.className='star';
+        const sz=Math.random()*2+0.5;
+        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--mn:0.04;--mx:${0.25+Math.random()*0.35};`;
+        c.appendChild(s);
+      }
+    })();
+    function toggleMobile(){document.getElementById('mob-menu').classList.toggle('open');}
+    lucide.createIcons();
+  </script>
+</body>
+</html>
