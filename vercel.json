@@ -7,17 +7,17 @@
     }
   ],
   "routes": [
-    {
-      "src": "/shared.css",
-      "dest": "/shared.css"
-    },
-    {
-      "src": "/(.*\\.html)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server.js"
-    }
+    { "src": "/", "dest": "/server.js" },
+    { "src": "/api/simulate", "dest": "/server.js" },
+    { "src": "/index.html", "dest": "/server.js" },
+    { "src": "/simulator.html", "dest": "/server.js" },
+    { "src": "/dashboard.html", "dest": "/server.js" },
+    { "src": "/about.html", "dest": "/server.js" },
+    { "src": "/contact.html", "dest": "/server.js" },
+    { "src": "/services.html", "dest": "/server.js" },
+    { "src": "/404.html", "dest": "/server.js" },
+    { "src": "/landing.html", "dest": "/server.js" },
+    { "src": "/shared.css", "dest": "/server.js" },
+    { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
